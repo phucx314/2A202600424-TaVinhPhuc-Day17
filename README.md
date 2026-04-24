@@ -9,13 +9,19 @@
 
 ```
 lab17/
-├── memory_backends.py     # 4 memory backends (short/long/episodic/semantic)
-├── agent.py               # LangGraph state/router + prompt injection
-├── benchmark.py           # Benchmark 10 multi-turn conversations
+├── src/
+│   ├── memory_backends.py # 4 memory backends (short/long/episodic/semantic)
+│   └── agent.py           # LangGraph state/router + prompt injection
+├── scripts/
+│   └── benchmark.py       # Benchmark 10 multi-turn conversations
+├── data/
+│   ├── profile_store.json     # Long-term profile (auto-generated)
+│   ├── episodic_log.json      # Episodic memory log (auto-generated)
+│   └── semantic_fallback.json # Semantic fallback store (auto-generated)
+├── docs/
+│   ├── day02-assess-01-rubric-guidance.md
+│   └── day02-memory-systems-for-agents.pdf
 ├── BENCHMARK.md           # Output benchmark report
-├── profile_store.json     # Long-term profile (auto-generated)
-├── episodic_log.json      # Episodic memory log (auto-generated)
-├── semantic_fallback.json # Semantic fallback store (auto-generated)
 ├── chroma_store/          # ChromaDB persistent store (auto-generated)
 ├── requirements.txt
 ├── .env                   # OPENAI_API_KEY (copy từ .env.example)
@@ -96,14 +102,16 @@ class MemoryState(TypedDict):
 
 ```bash
 source venv/bin/activate
-python agent.py
+export PYTHONPATH=src:$PYTHONPATH
+python src/agent.py
 ```
 
 ### Chạy benchmark
 
 ```bash
 source venv/bin/activate
-python benchmark.py
+export PYTHONPATH=src:$PYTHONPATH
+python scripts/benchmark.py
 # → Tạo ra BENCHMARK.md
 ```
 

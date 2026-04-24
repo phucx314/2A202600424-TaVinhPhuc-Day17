@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import time
+from pathlib import Path
 from typing import Any, Literal
 
 from dotenv import load_dotenv
@@ -17,9 +19,19 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 
-from memory_backends import EpisodicMemory, LongTermProfile, SemanticMemory, ShortTermMemory
+# Project root = parent of src/
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIR     = PROJECT_ROOT / "data"
+DATA_DIR.mkdir(exist_ok=True)
 
-load_dotenv()
+# Ensure src/ is on path (needed when run via scripts/)
+if str(Path(__file__).parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent))
+
+from memory_backends import EpisodicMemory, LongTermProfile, SemanticMemory, ShortTermMemory  # noqa: E402
+
+# Load .env from project root
+load_dotenv(PROJECT_ROOT / ".env")
 
 # ---------------------------------------------------------------------------
 # MemoryState — rubric-required shape
@@ -41,9 +53,11 @@ class MemoryState(TypedDict):
 # ---------------------------------------------------------------------------
 
 short_term  = ShortTermMemory(max_turns=10)
-long_term   = LongTermProfile(path="profile_store.json")
-episodic    = EpisodicMemory(path="episodic_log.json")
-semantic    = SemanticMemory()
+long_term   = LongTermProfile(path=str(DATA_DIR / "profile_store.json"))
+episodic    = EpisodicMemory(path=str(DATA_DIR / "episodic_log.json"))
+semantic    = SemanticMemory(
+    persist_dir=str(PROJECT_ROOT / "chroma_store"),
+)
 
 # Seed some FAQ knowledge into semantic store
 _FAQ_SEEDED = False

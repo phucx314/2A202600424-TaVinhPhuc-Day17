@@ -172,7 +172,9 @@ class SemanticMemory:
         self._chroma_ok = False
         self._collection = None
         self._fallback_docs: list[dict] = []
-        self._fallback_path = Path("semantic_fallback.json")
+        # Store fallback JSON next to chroma_store (i.e., in project root / data/)
+        _parent = Path(persist_dir).parent
+        self._fallback_path = _parent / "data" / "semantic_fallback.json"
         self._init_chroma()
         self._load_fallback()
 

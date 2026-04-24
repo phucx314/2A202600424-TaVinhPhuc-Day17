@@ -1,5 +1,32 @@
-**.env
-**/__pycache__
-**/venv/
-**/chroma_store
-**/chroma_db
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment secrets
+.env
+
+# Runtime data (auto-generated, do NOT commit)
+data/*.json
+data/*.jsonl
+
+# Vector store (large binary files)
+chroma_store/
+chroma_db/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

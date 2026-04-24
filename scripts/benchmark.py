@@ -7,9 +7,17 @@ Outputs results to BENCHMARK.md.
 
 from __future__ import annotations
 
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+
+# Add src/ to path so we can import agent and memory_backends
+_SRC = Path(__file__).parent.parent / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+PROJECT_ROOT = Path(__file__).parent.parent
 
 from rich.console import Console
 from rich.progress import track
@@ -417,7 +425,8 @@ if __name__ == "__main__":
     results = run_benchmark()
 
     md_content = generate_benchmark_md(results)
-    Path("BENCHMARK.md").write_text(md_content, encoding="utf-8")
+    out_path = PROJECT_ROOT / "BENCHMARK.md"
+    out_path.write_text(md_content, encoding="utf-8")
 
     console.print("\n[bold green]✅ BENCHMARK.md written successfully![/bold green]")
 
