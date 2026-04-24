@@ -83,7 +83,7 @@ SCENARIOS: list[Scenario] = [
             Turn("user", "Tốt. Cho tôi hỏi về Python threading."),
             Turn("user", "Cảm ơn. Còn lỗi kết nối Docker thì sao?"),  # ← recall
         ],
-        recall_turn=2, expected_keyword="service"
+        recall_turn=2, expected_keyword="service|dịch vụ"
     ),
 
     # 4. Semantic retrieval — FAQ chunk
@@ -211,16 +211,20 @@ def word_count(text: str) -> int:
 
 
 def run_benchmark() -> list[ScenarioResult]:
+    # --- Reset all persistent memories for a clean benchmark run ---
+    long_term._data.clear()
+    long_term._history.clear()
+    long_term._save()
+    episodic.clear()
+    
     results: list[ScenarioResult] = []
 
     for scenario in track(SCENARIOS, description="Running benchmark scenarios..."):
         console.print(f"\n[bold yellow]▶ Scenario {scenario.id}: {scenario.name}[/bold yellow]")
 
-        # Reset agent memory between scenarios for clean test
+        # Reset short term agent memory between scenarios
         short_term.clear()
-        # Note: long_term and episodic persist across scenarios intentionally
-        # (real-world agents accumulate memory)
-
+        
         sr = ScenarioResult(scenario=scenario)
         no_mem_responses: list[str] = []
         with_mem_responses: list[str] = []
@@ -255,9 +259,10 @@ def run_benchmark() -> list[ScenarioResult]:
             recall_idx = scenario.recall_turn
             if recall_idx < len(sr.turn_results):
                 recall_result = sr.turn_results[recall_idx]
-                kw = scenario.expected_keyword.lower()
-                sr.pass_no_memory  = kw in recall_result.no_memory_response.lower()
-                sr.pass_with_memory= kw in recall_result.with_memory_response.lower()
+                kws = [k.strip() for k in scenario.expected_keyword.lower().split("|")]
+                
+                sr.pass_no_memory = any(kw in recall_result.no_memory_response.lower() for kw in kws)
+                sr.pass_with_memory = any(kw in recall_result.with_memory_response.lower() for kw in kws)
 
         results.append(sr)
         status = sr.pass_symbol
